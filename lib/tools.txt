@@ -1,15 +1,18 @@
 Print List:
-(* let () = List.iter ~f:(printf "%d ") l_test *)
+let () = List.iter ~f:(printf "%d ") l_test
 
 Benchmark:
-(* [
+[
      Core_bench.Bench.Test.create ~name:"Rev_Non_Rec" (fun () ->
          sumCals l_test |> findMax);
      Core_bench.Bench.Test.create ~name:"Rev_Rec" (fun () ->
          sumCals l_test |> findMax_1);
    ]
-   |> Core_bench.Bench.bench *)
-(* ------------------------------------------------------ *)
+   |> Core_bench.Bench.bench 
 
 (*optional to order the list*)
-(* |> List.rev  *)
+|> List.rev
+
+Another way of finding max its the same speed:
+let findMax_2 l_in =
+   List.max_elt l_in ~compare:Int.compare |> function None -> 0 | Some n -> n 
