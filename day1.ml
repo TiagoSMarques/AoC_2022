@@ -10,7 +10,7 @@ let findMax l_in = List.fold l_in ~init:0 ~f:(fun acc x -> Int.max x acc)
 
 (* Another way of finding max its the same speed*)
 (* let findMax_2 l_in =
-  List.max_elt l_in ~compare:Int.compare |> function None -> 0 | Some n -> n *)
+   List.max_elt l_in ~compare:Int.compare |> function None -> 0 | Some n -> n *)
 
 let sumCals l =
   let incFirstItem l n = match l with [] -> [] | hd :: tl -> (hd + n) :: tl in
@@ -19,17 +19,13 @@ let sumCals l =
 
 (* Part 1 *)
 let () =
-  (* read_lines "day1.txt" |> inputFormat |> sumCals |> List.iter ~f:(printf "%d ") *)
   read_lines "day1.txt" |> inputFormat |> sumCals |> findMax
   |> printf "Day 1 p1 %i\n"
 
-
 (* Part 2 *)
-
 let rec sum = function [] -> 0 | x :: xs -> x + sum xs
 
 let () =
-  (* read_lines "day1.txt" |> inputFormat |> sumCals |> List.iter ~f:(printf "%d ") *)
   let sortedCals =
     read_lines "day1.txt" |> inputFormat |> sumCals
     |> List.sort ~compare:(fun x y -> compare y x)
