@@ -7,6 +7,10 @@
 *.cmx
 *.cmxs
 *.cmxa
+*.ocamlformat
+
+dune
+dune-project
 
 # ocamlbuild working directory
 _build/

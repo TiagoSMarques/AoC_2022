@@ -1,0 +1,15 @@
+Print List:
+(* let () = List.iter ~f:(printf "%d ") l_test *)
+
+Benchmark:
+(* [
+     Core_bench.Bench.Test.create ~name:"Rev_Non_Rec" (fun () ->
+         sumCals l_test |> findMax);
+     Core_bench.Bench.Test.create ~name:"Rev_Rec" (fun () ->
+         sumCals l_test |> findMax_1);
+   ]
+   |> Core_bench.Bench.bench *)
+(* ------------------------------------------------------ *)
+
+(*optional to order the list*)
+(* |> List.rev  *)
