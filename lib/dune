@@ -1,0 +1,3 @@
+(library
+ (name readfile)
+ (libraries stdio "str" stdlib))
