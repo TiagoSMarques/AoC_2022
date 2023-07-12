@@ -13,18 +13,11 @@ let firstMatch sack s1' =
   aux sack
 ;;
 
-let sumPriority cl =
-  let res = 0 in
-  let rec aux cl res' =
-    match cl with
-    | [] -> res'
-    | hd :: tl ->
-      if Char.is_lowercase hd then
-        aux tl (res' + Char.to_int hd - 96)
-      else
-        aux tl (res' + Char.to_int hd - 38)
-  in
-  aux cl res
+let sumPriority c' =
+  if Char.is_lowercase c' then
+    Char.to_int c' - 96
+  else
+    Char.to_int c' - 38
 ;;
 
 let findCommonItem sack acc' =
@@ -35,15 +28,15 @@ let findCommonItem sack acc' =
 
   match firstMatch chars_s2 s1 with
   | None -> failwith "No common items in sack"
-  | Some c -> c :: acc'
+  | Some c -> sumPriority c + acc'
 ;;
 
 let inp = read_lines "day3.txt"
 
 (* part 1  *)
 let () =
-  let char_list = List.fold inp ~init:[] ~f:(fun acc sack -> findCommonItem sack acc) in
-  sumPriority char_list |> Stdio.printf "res : %d\n"
+  List.fold inp ~init:0 ~f:(fun acc sack -> findCommonItem sack acc)
+  |> Stdio.printf "res : %d\n"
 ;;
 
 type group = {
@@ -53,7 +46,6 @@ type group = {
 }
 
 let matches badge_cand sack =
-  (* let matched_chars *)
   let rec aux matched_chars cand =
     match cand with
     | [] -> matched_chars
@@ -72,25 +64,28 @@ let rec makeGroups = function
   | _ -> failwith "Cant make groups of 3"
 ;;
 
-let alternative = List.groupi inp ~break:(fun i _ _ -> i % 3 = 0)
+(* let alternative = List.groupi inp ~break:(fun i _ _ -> i % 3 = 0) *)
 
-let findBadge group' =
+let findAllBadge group' res' =
   let possible_badges = String.to_list group'.s1 in
   match matches possible_badges group'.s2 with
   | [] -> failwith "no common badges with s2"
   | badge_candidates ->
-    (match
-       matches badge_candidates group'.s3 |> List.dedup_and_sort ~compare:Char.compare
-     with
-     | [badge] -> badge
-     | _ -> failwith "no common badges with s3")
+    (match firstMatch badge_candidates group'.s3 with
+     | Some badge -> sumPriority badge + res'
+     | None -> failwith "no common badges with s3")
 ;;
 
+(* part2  *)
 let () =
-  let badges =
-    List.fold (makeGroups inp) ~init:[] ~f:(fun acc group' -> findBadge group' :: acc)
-    (* List.iter (makeGroups inp) ~f:(fun group' -> findBadge group') *)
-  in
-
-  sumPriority badges |> Stdio.printf "res : %d\n"
+  List.fold (makeGroups inp) ~init:0 ~f:(fun acc group' -> findAllBadge group' acc)
+  |> Stdio.printf "res : %d\n"
 ;;
+
+[
+  Core_bench.Bench.Test.create ~name:"Rev_Non_Rec" (fun () ->
+    List.fold inp ~init:0 ~f:(fun acc sack -> findCommonItem sack acc));
+  Core_bench.Bench.Test.create ~name:"Rev_Rec" (fun () ->
+    List.fold (makeGroups inp) ~init:0 ~f:(fun acc group' -> findAllBadge group' acc));
+]
+|> Core_bench.Bench.bench
