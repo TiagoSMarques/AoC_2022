@@ -53,7 +53,9 @@ type group = {
 }
 
 let matches badge_cand sack =
-  let rec aux matched_chars = function
+  (* let matched_chars *)
+  let rec aux matched_chars cand =
+    match cand with
     | [] -> matched_chars
     | hd :: rest ->
       if String.contains sack hd then
@@ -70,22 +72,25 @@ let rec makeGroups = function
   | _ -> failwith "Cant make groups of 3"
 ;;
 
-(* let alternative = List.groupi inp ~break:(fun i _ _ -> i % 3 = 0) *)
+let alternative = List.groupi inp ~break:(fun i _ _ -> i % 3 = 0)
 
 let findBadge group' =
   let possible_badges = String.to_list group'.s1 in
   match matches possible_badges group'.s2 with
   | [] -> failwith "no common badges with s2"
   | badge_candidates ->
-    (match matches badge_candidates group'.s3 with
-     | [badge] -> Stdio.printf "%c" badge
+    (match
+       matches badge_candidates group'.s3 |> List.dedup_and_sort ~compare:Char.compare
+     with
+     | [badge] -> badge
      | _ -> failwith "no common badges with s3")
 ;;
 
 let () =
-  (* let badges = *)
-  (* List.fold (makeGroups inp) ~init:[] ~f:(fun acc group' -> findBadge group' :: acc) *)
-  List.iter (makeGroups inp) ~f:(fun group' -> findBadge group')
+  let badges =
+    List.fold (makeGroups inp) ~init:[] ~f:(fun acc group' -> findBadge group' :: acc)
+    (* List.iter (makeGroups inp) ~f:(fun group' -> findBadge group') *)
+  in
+
+  sumPriority badges |> Stdio.printf "res : %d\n"
 ;;
-(* in
-  sumPriority badges |> Stdio.printf "res : %d\n" *)
