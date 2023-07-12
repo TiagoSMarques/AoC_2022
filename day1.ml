@@ -24,7 +24,7 @@ let findMax l_in = List.fold l_in ~init:0 ~f:(fun acc x -> Int.max x acc)
 
 (* Part 1 *)
 let () =
-  read_lines_2 "day1.txt" |> inputFormat |> sumCals |> findMax |> printf "Day 1 p1 %i\n"
+  read_lines "day1.txt" |> inputFormat |> sumCals |> findMax |> printf "Day 1 p1 %i\n"
 ;;
 
 (* Part 2 *)

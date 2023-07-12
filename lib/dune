@@ -1,3 +1,3 @@
 (library
  (name readfile)
- (libraries stdio "str" stdlib))
+ (libraries stdio str stdlib))

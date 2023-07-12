@@ -1,46 +1,36 @@
-(* open Readfile
+open Readfile
 
+let findFirstPresentChar sack l_chars =
+  let open Base in
+  let sack_mid = String.length sack / 2 in
+  let s1 = String.sub sack ~pos:0 ~len:sack_mid in
+  let s2 = String.sub sack ~pos:sack_mid ~len:sack_mid in
+  let chars = String.to_list s2 in
 
-let sumPriorities l total =
-  match l with
-  | [] -> []
-  | hd :: tl ->
-    let sack_mid = String.length hd / 2 in
-    let s1 = String.sub hd 0 sack_mid in
-    let s2 = String.sub hd sack_mid sack_mid in
-    let chars_s2 = String.to_seq s2 in
-    let list_matches = Seq.map (fun c -> String.index s1 c) chars_s2 in 
-;; *)
-
-let findFirstPresentChar sack=
-
-let sack_mid = String.length sack / 2 in 
-let str = String.sub sack 0 sack_mid in 
-let s2 = String.sub sack sack_mid sack_mid in 
-let chars = List.of_seq (String.to_seq s2) in
-
-let rec aux = function
-    | [] -> '!'
+  let rec firstOcurrence = function
+    | [] -> failwith "No same items in the 2 compartments"
     | hd :: rest ->
-        if String.contains str hd then
+      if String.contains s1 hd then
         hd
-        else
-          aux rest
+      else
+        firstOcurrence rest
   in
-  aux chars;;
+  firstOcurrence chars :: l_chars
+;;
 
 String.get_int8 "Z" 0 |> print_int
 
-let hd = "helloo"
+let calPriority = List.map ()
 
-let inp = read_lines "day3.txt";
-let char_list = List.map (fun (sack) -> findFirstPresentChar sack) inp;;
+(* let hd = "helloo" *)
 
-
-
+let inp = read_lines "day3.txt"
+let char_list = List.fold_left (fun acc sack -> findFirstPresentChar sack acc) [] inp
+let () = List.iter print_char char_list
+(* 
 let () = Stdio.printf "s1: %s \n" s1
 let () = Stdio.printf "s2: %s \n" s2
-let () = Stdio.printf "\n\n %d" (Seq.length list_matches)
+let () = Stdio.printf "\n\n %d" (Seq.length list_matches) *)
 (* let () = Seq.iter print_char chars_s2 *)
 (* let () = Seq.iter (Stdio.printf "%i \n") list_matches *)
 
