@@ -23,7 +23,7 @@ let checkIfContained ((s1, e1), (s2, e2)) =
 
 let checkOverlap ((s1, e1), (s2, e2)) =
   let pair = (s1, e1), (s2, e2) in
-  if checkIfContained pair = 1 || (e1 >= s2 && e2 >= s1) then
+  if (e1 >= s2 && e2 >= s1) || checkIfContained pair = 1 then
     1
   else
     0
