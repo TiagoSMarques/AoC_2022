@@ -14,16 +14,16 @@ let makePair str' =
   map_touple Int.of_string (splitAndTouple a '-', splitAndTouple b '-')
 ;;
 
-let checkIfContained ((z1x, z1y), (z2x, z2y)) =
-  if (z1x >= z2x && z1y <= z2y) || (z2x >= z1x && z2y <= z1y) then
+let checkIfContained ((s1, e1), (s2, e2)) =
+  if (s1 >= s2 && e1 <= e2) || (s2 >= s1 && e2 <= e1) then
     1
   else
     0
 ;;
 
-let checkOverlap ((z1x, z1y), (z2x, z2y)) =
-  let pair = (z1x, z1y), (z2x, z2y) in
-  if checkIfContained pair = 1 || (z1y >= z2x && z2y >= z1x) then
+let checkOverlap ((s1, e1), (s2, e2)) =
+  let pair = (s1, e1), (s2, e2) in
+  if checkIfContained pair = 1 || (e1 >= s2 && e2 >= s1) then
     1
   else
     0
