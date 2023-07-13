@@ -69,11 +69,11 @@ let rec makeGroups = function
 let findAllBadge group' res' =
   let possible_badges = String.to_list group'.s1 in
   match matches possible_badges group'.s2 with
-  | [] -> failwith "no common badges with s2"
+  | [] -> failwith "No common badges with s2"
   | badge_candidates ->
     (match firstMatch badge_candidates group'.s3 with
      | Some badge -> sumPriority badge + res'
-     | None -> failwith "no common badges with s3")
+     | None -> failwith "No common badges with s3")
 ;;
 
 (* part2  *)
@@ -81,11 +81,3 @@ let () =
   List.fold (makeGroups inp) ~init:0 ~f:(fun acc group' -> findAllBadge group' acc)
   |> Stdio.printf "res : %d\n"
 ;;
-
-[
-  Core_bench.Bench.Test.create ~name:"Rev_Non_Rec" (fun () ->
-    List.fold inp ~init:0 ~f:(fun acc sack -> findCommonItem sack acc));
-  Core_bench.Bench.Test.create ~name:"Rev_Rec" (fun () ->
-    List.fold (makeGroups inp) ~init:0 ~f:(fun acc group' -> findAllBadge group' acc));
-]
-|> Core_bench.Bench.bench
