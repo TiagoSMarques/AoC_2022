@@ -21,9 +21,24 @@ let checkIfContained ((z1x, z1y), (z2x, z2y)) =
     0
 ;;
 
+let checkOverlap ((z1x, z1y), (z2x, z2y)) =
+  let pair = (z1x, z1y), (z2x, z2y) in
+  if checkIfContained pair = 1 || (z1y >= z2x && z2y >= z1x) then
+    1
+  else
+    0
+;;
+
+let inp = Readfile.read_lines "day4.txt"
+
 (* part 1 *)
 let () =
-  let inp = Readfile.read_lines "day4.txt" in
   List.fold inp ~init:0 ~f:(fun acc pair' -> (makePair pair' |> checkIfContained) + acc)
-  |> Stdio.printf "res : %d\n"
+  |> Stdio.printf "Ans1 : %d\n"
+;;
+
+(* part 2 *)
+let () =
+  List.fold inp ~init:0 ~f:(fun acc pair' -> (makePair pair' |> checkOverlap) + acc)
+  |> Stdio.printf "Ans2 : %d\n"
 ;;
