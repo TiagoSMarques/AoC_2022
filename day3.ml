@@ -81,11 +81,3 @@ let () =
   List.fold (makeGroups inp) ~init:0 ~f:(fun acc group' -> findAllBadge group' acc)
   |> Stdio.printf "res : %d\n"
 ;;
-
-[
-  Core_bench.Bench.Test.create ~name:"Rev_Non_Rec" (fun () ->
-    List.fold inp ~init:0 ~f:(fun acc sack -> findCommonItem sack acc));
-  Core_bench.Bench.Test.create ~name:"Rev_Rec" (fun () ->
-    List.fold (makeGroups inp) ~init:0 ~f:(fun acc group' -> findAllBadge group' acc));
-]
-|> Core_bench.Bench.bench
