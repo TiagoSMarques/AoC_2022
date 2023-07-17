@@ -16,3 +16,10 @@ Benchmark:
 Another way of finding max its the same speed:
 let findMax_2 l_in =
    List.max_elt l_in ~compare:Int.compare |> function None -> 0 | Some n -> n 
+
+(* If we are sure of the output 
+let movefmt_2 move_line =
+  let map_sp f f2 (a, b, c) l = f (f2 l a), f (f2 l b), f (f2 l c) in
+  (* move m from f to t  *)
+  map_sp Char.get_digit_exn List.nth_exn (5, 12, 17) (String.to_list move_line)
+;; *)

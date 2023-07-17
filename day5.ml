@@ -1,27 +1,20 @@
 open Base
 
-let inp = Readfile.read_lines "day5.txt"
-
-(* open Str *)
-
-let storage, moves =
+let parseInput inp =
+  let numberOfPiles piles' =
+    let l = String.length piles' in
+    Char.get_digit_exn (String.get piles' (l - 2))
+  in
   let groups = List.group inp ~break:(fun _ s -> String.compare s "" = 0) in
   match groups with
-  | storage' :: moves' :: _ -> storage', List.tl_exn moves'
+  | storage' :: moves' :: _ ->
+    ( List.rev (List.drop_last_exn storage'),
+      numberOfPiles (List.last_exn storage'),
+      List.tl_exn moves' )
   | _ -> failwith "Wrong format - no separation"
 ;;
 
-let t = "move 1 from 2 to 1"
-(* Readfile.print_listof_strs a *)
-
-(* If we are sure of the output  *)
-let movefmt_2 move_line =
-  let map_sp f f2 (a, b, c) l = f (f2 l a), f (f2 l b), f (f2 l c) in
-  (* move m from f to t  *)
-  map_sp Char.get_digit_exn List.nth_exn (5, 12, 17) (String.to_list move_line)
-;;
-
-let movefmt move_line =
+let moveFormat move_line =
   match Str.(split (regexp "\\b[a-z]+\\b") move_line) with
   (* move m from f to t  *)
   | [m; f; t] -> Int.of_string m, Int.of_string f, Int.of_string t
@@ -30,16 +23,43 @@ let movefmt move_line =
     failwith "Wrong format"
 ;;
 
-let print_queue q = Queue.iter q ~f:(fun element -> Stdio.printf "%d \n" element)
-let print_stack q = Stack.iter q ~f:(fun element -> Stdio.printf "%d \n" element)
-let a = List.append [1; 4] [6]
-let () = Readfile.print_listof_ints a
-let my_queue = Queue.create ()
-let () = Queue.enqueue my_queue 2
-let my_stack = Stack.create ()
-let () = Stack.push my_stack 4;;
+let makeStacks storage' n_piles =
+  let storeRow row n st_stack =
+    for n_th = 0 to n - 1 do
+      let getChar = String.get row (1 + (4 * n_th)) in
+      if not (Char.( = ) getChar ' ') then Stack.push (List.nth_exn st_stack n_th) getChar
+    done
+  in
+  let stkd_sto = List.init n_piles ~f:(fun _ -> Stack.create ()) in
+  List.iter storage' ~f:(fun row -> storeRow row n_piles stkd_sto);
+  stkd_sto
+;;
 
-print_queue my_queue;;
-print_stack my_stack
+let makeStacks_Array storage' n_piles =
+  let storeRow row n st_stack =
+    for n_th = 0 to n - 1 do
+      let getChar = String.get row (1 + (4 * n_th)) in
+      if not (Char.( = ) getChar ' ') then Stack.push st_stack.(n_th) getChar
+    done
+  in
+  let stkd_sto = Array.init n_piles ~f:(fun _ -> Stack.create ()) in
+  List.iter storage' ~f:(fun row -> storeRow row n_piles stkd_sto);
+  stkd_sto
+;;
 
+(* let makeStacks storage' =   *)
+let inp = Readfile.read_lines "day5.txt"
+let storage, n_piles, moves = parseInput inp
+let stacked_storage = makeStacks storage n_piles
+let stacked_storage_arr = makeStacks_Array storage n_piles
+
+(* let makeMove (m, f, t) st = m + f + t *)
+
+(* let a, b, c = movefmt (List.last_exn moves) *)
+(* let t = "move 1 from 2 to 1"
+let () = Readfile.print_listof_strs storage ~txt:"Storage: "
+let () = Stdio.printf "Piles: %d: \n" n_piles
+let () = Readfile.print_listof_strs moves ~txt:"Moves: " *)
+let () = Stack.iter ~f:(Stdio.printf "%c ") (List.nth_exn stacked_storage 0)
+let () = Stack.iter ~f:(Stdio.printf "%c ") stacked_storage_arr.(0)
 (* format the colum storage in to queues *)
