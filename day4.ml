@@ -7,7 +7,7 @@ let makePair str' =
     match String.split str' ~on:char' with
     | [t1; t2] -> t1, t2
     | []
-    | _ ->
+     |_ ->
       failwith "Wrong format"
   in
   let a, b = splitAndTouple str' ',' in

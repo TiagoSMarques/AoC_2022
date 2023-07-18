@@ -28,6 +28,6 @@ type-decl = sparse
 wrap-fun-args = false
 
 if-then-else = k-r
-# indicate-nested-or-patterns = unsafe-no
+indicate-nested-or-patterns = space
 
 dock-collection-brackets = true
