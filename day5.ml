@@ -18,18 +18,6 @@ let makeStacks storage' n_piles =
   let storeRow row n st_stack =
     for n_th = 0 to n - 1 do
       let getChar = String.get row (1 + (4 * n_th)) in
-      if not (Char.( = ) getChar ' ') then Stack.push (List.nth_exn st_stack n_th) getChar
-    done
-  in
-  let stkd_sto = List.init n_piles ~f:(fun _ -> Stack.create ()) in
-  List.iter storage' ~f:(fun row -> storeRow row n_piles stkd_sto);
-  stkd_sto
-;;
-
-let makeStacks_Array storage' n_piles =
-  let storeRow row n st_stack =
-    for n_th = 0 to n - 1 do
-      let getChar = String.get row (1 + (4 * n_th)) in
       if not (Char.( = ) getChar ' ') then Stack.push st_stack.(n_th) getChar
     done
   in
@@ -56,30 +44,15 @@ let makeMove (m, f, t) st_sto =
   done
 ;;
 
-let makeMove_List (m, f, t) st_sto =
-  (* let tmp = ref [] in *)
-  let m' = ref m in
-  while !m' >= 1 do
-    Stack.push (List.nth_exn st_sto t) (Stack.pop_exn (List.nth_exn st_sto f));
-    Int.decr m'
-  done
+let part1 inp =
+  let storage, n_piles, moves = parseInput inp in
+  let stacked_storage_arr = makeStacks storage n_piles in
+  let () =
+    List.iter moves ~f:(fun move -> makeMove (moveFormat move) stacked_storage_arr)
+  in
+  Array.iter stacked_storage_arr ~f:(fun x -> Stdio.printf "%c" (Stack.top_exn x))
 ;;
 
-(* let makeStacks storage' =   *)
+(* Part 1 *)
 let inp = Readfile.read_lines "day5.txt"
-let storage, n_piles, moves = parseInput inp
-let stacked_storage = makeStacks storage n_piles
-let stacked_storage_arr = makeStacks_Array storage n_piles
-let () = List.iter moves ~f:(fun move -> makeMove (moveFormat move) stacked_storage_arr)
-let () = Array.iter stacked_storage_arr ~f:(fun x -> Stdio.printf "%c" (Stack.top_exn x))
-;;
-
-[
-  Core_bench.Bench.Test.create ~name:"Arr" (fun () ->
-    let stacked_storage_arr = makeStacks_Array storage n_piles in
-    List.iter moves ~f:(fun move -> makeMove (moveFormat move) stacked_storage_arr));
-  Core_bench.Bench.Test.create ~name:"List" (fun () ->
-    let stacked_storage = makeStacks storage n_piles in
-    List.iter moves ~f:(fun move -> makeMove_List (moveFormat move) stacked_storage));
-]
-|> Core_bench.Bench.bench
+let () = part1 inp
