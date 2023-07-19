@@ -35,20 +35,34 @@ let moveFormat move_line =
     failwith "Wrong format"
 ;;
 
-let makeMove (m, f, t) st_sto =
-  (* let tmp = ref [] in *)
-  let m' = ref m in
-  while !m' >= 1 do
-    Stack.push st_sto.(t) (Stack.pop_exn st_sto.(f));
-    Int.decr m'
+let makeMove_9000 (m, f, t) st_sto =
+  for _i = 1 to m do
+    Stack.push st_sto.(t) (Stack.pop_exn st_sto.(f))
   done
+;;
+
+let makeMove_9001 (m, f, t) st_sto =
+  let tmp = Stack.create () in
+  for _i = 1 to m do
+    Stack.push tmp (Stack.pop_exn st_sto.(f))
+  done;
+  Stack.iter tmp ~f:(fun x -> Stack.push st_sto.(t) x)
 ;;
 
 let part1 inp =
   let storage, n_piles, moves = parseInput inp in
   let stacked_storage_arr = makeStacks storage n_piles in
   let () =
-    List.iter moves ~f:(fun move -> makeMove (moveFormat move) stacked_storage_arr)
+    List.iter moves ~f:(fun move -> makeMove_9000 (moveFormat move) stacked_storage_arr)
+  in
+  Array.iter stacked_storage_arr ~f:(fun x -> Stdio.printf "%c" (Stack.top_exn x))
+;;
+
+let part2 inp =
+  let storage, n_piles, moves = parseInput inp in
+  let stacked_storage_arr = makeStacks storage n_piles in
+  let () =
+    List.iter moves ~f:(fun move -> makeMove_9001 (moveFormat move) stacked_storage_arr)
   in
   Array.iter stacked_storage_arr ~f:(fun x -> Stdio.printf "%c" (Stack.top_exn x))
 ;;
@@ -56,3 +70,5 @@ let part1 inp =
 (* Part 1 *)
 let inp = Readfile.read_lines "day5.txt"
 let () = part1 inp
+let () = Stdio.printf "\n"
+let () = part2 inp

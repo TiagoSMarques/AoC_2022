@@ -23,3 +23,12 @@ let movefmt_2 move_line =
   (* move m from f to t  *)
   map_sp Char.get_digit_exn List.nth_exn (5, 12, 17) (String.to_list move_line)
 ;; *)
+
+make a loop
+
+  let rec loop i =
+    if i >= l then s ^ "."
+    else if s.[i] = '.' || s.[i] = 'e' then s
+    else loop (i + 1)
+  in
+    loop 0
