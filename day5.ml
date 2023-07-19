@@ -15,14 +15,14 @@ let parseInput inp =
 ;;
 
 let makeStacks storage' n_piles =
-  let storeRow row n st_stack =
-    for n_th = 0 to n - 1 do
-      let getChar = String.get row (1 + (4 * n_th)) in
-      if not (Char.( = ) getChar ' ') then Stack.push st_stack.(n_th) getChar
-    done
+  let storeRow row st_stack =
+    Array.iteri st_stack ~f:(fun n_th _ ->
+      match String.get row (1 + (4 * n_th)) with
+      | s when Char.( = ) s ' ' -> ()
+      | s -> Stack.push st_stack.(n_th) s)
   in
   let stkd_sto = Array.init n_piles ~f:(fun _ -> Stack.create ()) in
-  List.iter storage' ~f:(fun row -> storeRow row n_piles stkd_sto);
+  List.iter storage' ~f:(fun row -> storeRow row stkd_sto);
   stkd_sto
 ;;
 
@@ -49,26 +49,18 @@ let makeMove_9001 (m, f, t) st_sto =
   Stack.iter tmp ~f:(fun x -> Stack.push st_sto.(t) x)
 ;;
 
-let part1 inp =
+let solve f inp =
   let storage, n_piles, moves = parseInput inp in
   let stacked_storage_arr = makeStacks storage n_piles in
-  let () =
-    List.iter moves ~f:(fun move -> makeMove_9000 (moveFormat move) stacked_storage_arr)
-  in
-  Array.iter stacked_storage_arr ~f:(fun x -> Stdio.printf "%c" (Stack.top_exn x))
+  let () = List.iter moves ~f:(fun move -> f (moveFormat move) stacked_storage_arr) in
+  Array.iter stacked_storage_arr ~f:(fun x -> Stdio.printf "%c" (Stack.top_exn x));
+  Stdio.printf "\n"
 ;;
 
-let part2 inp =
-  let storage, n_piles, moves = parseInput inp in
-  let stacked_storage_arr = makeStacks storage n_piles in
-  let () =
-    List.iter moves ~f:(fun move -> makeMove_9001 (moveFormat move) stacked_storage_arr)
-  in
-  Array.iter stacked_storage_arr ~f:(fun x -> Stdio.printf "%c" (Stack.top_exn x))
-;;
+let inp = Readfile.read_lines "day5.txt"
 
 (* Part 1 *)
-let inp = Readfile.read_lines "day5.txt"
-let () = part1 inp
-let () = Stdio.printf "\n"
-let () = part2 inp
+let () = solve makeMove_9000 inp
+
+(* Part 2 *)
+let () = solve makeMove_9001 inp
