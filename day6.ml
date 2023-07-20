@@ -1,21 +1,23 @@
 open Base
 
 let inp = Readfile.read_lines "day6.txt"
-let b = "asdfdif"
+let b = "asdfxii"
+let c = String.drop_suffix b
 
 let findFirstDup str =
+  let sl = String.length str in
   let rec aux i =
-    if String.count str ~f:(fun c2 -> Char.( = ) str.[i] c2) > 1 && i <= String.length str
-    then
-      (* Stdio.printf "ind: %d\n" i; *)
+    if String.count str ~f:(fun c2 -> Char.( = ) str.[i] c2) > 1 then
       i
+    else if i >= sl - 1 then
+      failwith "No duplicates in string"
     else
-      (* Stdio.printf "ind rec: %d\n" (i + 1); *)
       aux (i + 1)
   in
   aux 0
 ;;
 
+let () = Stdio.printf "ind: %d\n" (findFirstDup b)
 (* in  *)
 
 (* 
