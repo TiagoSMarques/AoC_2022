@@ -30,5 +30,5 @@ let searchString str n =
 ;;
 
 let inp = Readfile.read_lines "day6.txt"
-let () = searchString (List.nth_exn inp 0) 4 |> Stdio.printf "Part 1: %d\n"
-let () = searchString (List.nth_exn inp 0) 14 |> Stdio.printf "Part 2: %d\n"
+let () = searchString (List.hd_exn inp) 4 |> Stdio.printf "Part 1: %d\n"
+let () = searchString (List.hd_exn inp) 14 |> Stdio.printf "Part 2: %d\n"
