@@ -1,7 +1,7 @@
 open Base
 
 type fileTree =
-  | File of (string * int)
+  | File of int
   | Dir of {
       name: string;
       mutable files: fileTree list;
@@ -43,8 +43,7 @@ let buildFileTree inp =
        | ["$"; "ls"] -> aux tl fs path
        | ["dir"; dir_name] ->
          aux tl (findAndAppend fs path (Dir { name = dir_name; files = [] })) path
-       | [size; file_name] ->
-         aux tl (findAndAppend fs path (File (file_name, Int.of_string size))) path
+       | [size; _] -> aux tl (findAndAppend fs path (File (Int.of_string size))) path
        | _ -> failwith "bad format of input")
   in
 
@@ -54,7 +53,7 @@ let buildFileTree inp =
 let sumSubDir file_tree =
   let sum_lst = ref [] in
   let rec aux = function
-    | File (_, size) -> size
+    | File size -> size
     | Dir fs ->
       let total = List.fold fs.files ~init:0 ~f:(fun acc elm -> aux elm + acc) in
       sum_lst := total :: !sum_lst;
