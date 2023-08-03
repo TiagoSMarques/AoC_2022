@@ -9,7 +9,25 @@ let appendFiles file = function
   | File _ -> failwith "dir must be a folder"
 ;;
 
+let remove_first = function
+  | [] -> []
+  | _ :: tl -> tl
+;;
+
 (* Format the input to build the fileTree*)
+let rec findAndAppend dir path line =
+  let rec aux dir path comp_dir =
+    match dir with
+    | [] -> failwith ("No dir found" ^ List.hd_exn path)
+    | Dir (n, c) :: _ when String.equal n (List.hd_exn path) ->
+      if List.length path <= 1 then
+        Dir (n, line :: c)
+      else
+        aux c (remove_first path) (Dir (n, c) :: comp_dir)
+    | _ :: tl -> aux tl path comp_dir
+  in
+  aux dir path []
+;;
 
 let buildFileTree inp =
   let rec aux inp depth =
@@ -38,27 +56,13 @@ let buildFileTree inp =
   aux inp 0
 ;;
 
-let dictionary = ["a", [File ("1", 1); Dir ("b", [])]; "banana", [File ("3", 3)]]
-let updated_dictionary = List.Assoc.add dictionary ~equal:String.equal "a"
-let ex4 = Dir ("/", [File ("1", 1); Dir ("a", [File ("2", 2)])])
-
-let app_at_depth dir target_depth name =
-  let rec aux depth folder =
-    match folder with
-    | Dir (_, c) ->
-      if depth < target_depth then
-        aux (depth + 1) c
-      else
-        c
-    | File _ -> failwith "dir must be a folder"
-  in
-  aux 0 dir
-;;
-
+let ex4 = [Dir ("/", [File ("1", 1); Dir ("a", [File ("2", 2)])])]
+let ex2 = Dir ("/", [])
+let path = ["/"; "a"]
+let c = findAndAppend ex4 path (File ("3", 3))
+let ex3 = appendFiles (File ("1", 1)) ex2 |> appendFiles (Dir ("a", []))
 let inp = Readfile.read_lines "day7.txt"
 let a = buildFileTree inp
-let ex2 = Dir ("/", [])
-let ex3 = appendFiles (File ("1", 1)) ex2 |> appendFiles (Dir ("a", []))
 
 let sumList file_tree =
   let sum_lst = ref [] in
