@@ -1,7 +1,7 @@
 open Base
 
 type fileTree =
-  | File of (string * int)
+  | File of int
   | Dir of {
       name: string;
       mutable files: fileTree list;
@@ -21,7 +21,6 @@ let findAndAppend dir path line =
     | [] -> failwith ("No dir found: " ^ List.hd_exn path)
     | Dir fs :: _ when String.equal fs.name (List.hd_exn path) ->
       if List.length path <= 1 then
-        (* Stdio.printf "folder: %s " fs.name; *)
         fs.files <- line :: fs.files
       else
         aux fs.files (List.tl_exn path)
@@ -31,6 +30,7 @@ let findAndAppend dir path line =
   dir
 ;;
 
+(* Not a very good implementation since it doesnt check if the cd command actually enters a valid dir - the code will only fail when appending the results of ls since the path wont be valid *)
 let buildFileTree inp =
   let rec aux inp fs path =
     match inp with
@@ -43,21 +43,17 @@ let buildFileTree inp =
        | ["$"; "ls"] -> aux tl fs path
        | ["dir"; dir_name] ->
          aux tl (findAndAppend fs path (Dir { name = dir_name; files = [] })) path
-       | [size; file_name] ->
-         aux tl (findAndAppend fs path (File (file_name, Int.of_string size))) path
+       | [size; _] -> aux tl (findAndAppend fs path (File (Int.of_string size))) path
        | _ -> failwith "bad format of input")
   in
 
   aux inp (Dir { name = "/"; files = [] }) []
 ;;
 
-let inp = Readfile.read_lines "day7.txt"
-let a = buildFileTree inp
-
-let sumList file_tree =
+let sumSubDir file_tree =
   let sum_lst = ref [] in
   let rec aux = function
-    | File (_, size) -> size
+    | File size -> size
     | Dir fs ->
       let total = List.fold fs.files ~init:0 ~f:(fun acc elm -> aux elm + acc) in
       sum_lst := total :: !sum_lst;
@@ -67,15 +63,26 @@ let sumList file_tree =
   !sum_lst
 ;;
 
-let b = sumList a
+let sizeList = Readfile.read_lines "day7.txt" |> buildFileTree |> sumSubDir
 
 let part1 =
-  List.fold b ~init:0 ~f:(fun acc x ->
+  List.fold sizeList ~init:0 ~f:(fun acc x ->
     if x <= 100_000 then
       x + acc
     else
       acc)
 ;;
 
-(* Readfile.print_listof_ints b; *)
-Stdio.printf "\n Part 1: %d" part1
+let part2 =
+  let max_space = 70_000_000 in
+  let res_space = 30_000_000 in
+  let free = max_space - List.hd_exn sizeList in
+  if Int.is_positive free then
+    List.sort sizeList ~compare:ascending
+    |> List.find_exn ~f:(fun x -> x + free >= res_space)
+  else
+    0
+;;
+
+Stdio.printf "Part 1: %d\n" part1;;
+Stdio.printf "Part 2: %d\n" part2
