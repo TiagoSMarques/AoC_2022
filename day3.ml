@@ -33,7 +33,7 @@ let findCommonItem sack acc' =
 
 let inp = read_lines "day3.txt"
 
-(* part 1  *)
+(* part 1 *)
 let () =
   List.fold inp ~init:0 ~f:(fun acc sack -> findCommonItem sack acc)
   |> Stdio.printf "res : %d\n"
@@ -76,7 +76,7 @@ let findAllBadge group' res' =
      | None -> failwith "No common badges with s3")
 ;;
 
-(* part2  *)
+(* part2 *)
 let () =
   List.fold (makeGroups inp) ~init:0 ~f:(fun acc group' -> findAllBadge group' acc)
   |> Stdio.printf "res : %d\n"

@@ -2,7 +2,7 @@ profile = janestreet
 version = 0.26.0
 
 # Forces cases to always be on different lines.
-break-cases=all
+# break-cases=all
 break-separators=after
 break-sequences = true
 break-fun-decl = smart
@@ -29,5 +29,6 @@ wrap-fun-args = false
 
 if-then-else = k-r
 indicate-nested-or-patterns = space
+# align-cases = true
 
 dock-collection-brackets = true
