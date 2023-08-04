@@ -54,8 +54,9 @@ let isVisible table coord (h, w) =
   checkUp || checkDown || checkLeft || checkRight
 ;;
 
+let inp = ["30373"; "25512"; "65332"; "33549"; "35390"]
 
-let inp = Readfile.read_lines "day8.txt"
+(* let inp = Readfile.read_lines "day8.txt" *)
 let c = Array2.of_array Int c_layout (parseToTree inp)
 let h, w = Array2.dim1 c, Array2.dim2 c
 
