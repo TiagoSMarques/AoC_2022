@@ -49,26 +49,23 @@ let inp = Readfile.read_lines "day8.txt"
 let c = Array2.of_array Int c_layout (parseToTree inp)
 let h, w = Array2.dim1 c, Array2.dim2 c
 
-let part1 =
+type sol = {
+  p1: int;
+  p2: int;
+}
+
+let solve =
+  let score = ref 0 in
   let sum = ref ((2 * h) + (2 * w) - 4) in
   for i = 1 to h - 2 do
     for j = 1 to w - 2 do
-      if isVisible c (i, j) (h, w) then sum := !sum + 1
-    done
-  done;
-  !sum
-;;
-
-let part2 =
-  let score = ref 0 in
-  for i = 1 to h - 2 do
-    for j = 1 to w - 2 do
+      if isVisible c (i, j) (h, w) then sum := !sum + 1;
       let tree_score = scenicScore c (i, j) (h, w) in
       if tree_score > !score then score := tree_score
     done
   done;
-  !score
+  { p1 = !sum; p2 = !score }
 ;;
 
-Stdio.printf "\n Part 1: %d" part1;
-Stdio.printf "\n Part 1: %d" part2
+Stdio.printf "\n Part 1: %d" solve.p1;
+Stdio.printf "\n Part 2: %d" solve.p2
