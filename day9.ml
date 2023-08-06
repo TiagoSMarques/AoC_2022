@@ -33,33 +33,16 @@ let moveHd c_pos = function
 ;;
 
 let moveTl pos_tl pos_hd =
-  (* Still close - dont move *)
-  if abs (pos_hd.x - pos_tl.x) <= 1 && abs (pos_hd.y - pos_tl.y) <= 1 then
-    { x = pos_tl.x; y = pos_tl.y }
-  (* Right *)
-  else if pos_hd.x - pos_tl.x >= 2 && pos_hd.y = pos_tl.y then
-    { x = pos_tl.x + 1; y = pos_tl.y }
-  (* Left *)
-  else if pos_hd.x - pos_tl.x <= -2 && pos_hd.y = pos_tl.y then
-    { x = pos_tl.x - 1; y = pos_tl.y }
-  (* Up *)
-  else if pos_hd.x = pos_tl.x && pos_hd.y - pos_tl.y >= 2 then
-    { x = pos_tl.x; y = pos_tl.y + 1 }
-  (* Down *)
-  else if pos_hd.x = pos_tl.x && pos_hd.y - pos_tl.y <= -2 then
-    { x = pos_tl.x; y = pos_tl.y - 1 }
-  (* Diagonals quad_1 *)
-  else if pos_hd.x - pos_tl.x >= 1 && pos_hd.y - pos_tl.y >= 1 then
-    { x = pos_tl.x + 1; y = pos_tl.y + 1 }
-  (* quad_2 *)
-  else if pos_hd.x - pos_tl.x <= -1 && pos_hd.y - pos_tl.y >= 1 then
-    { x = pos_tl.x - 1; y = pos_tl.y + 1 }
-  (* quad_3 *)
-  else if pos_hd.x - pos_tl.x <= -1 && pos_hd.y - pos_tl.y <= -1 then
-    { x = pos_tl.x - 1; y = pos_tl.y - 1 }
-  (* quad_4 *)
-  else
-    { x = pos_tl.x + 1; y = pos_tl.y - 1 }
+  (* (dx / abs dx) gets us the direction of movement *)
+  match pos_hd.x - pos_tl.x, pos_hd.y - pos_tl.y with
+  (* stay in place *)
+  | dx, dy when abs dx <= 1 && abs dy <= 1 -> { x = pos_tl.x; y = pos_tl.y }
+  (* Left/Right *)
+  | dx, _ when pos_hd.y = pos_tl.y -> { x = pos_tl.x + (dx / abs dx); y = pos_tl.y }
+  (* Up/Down *)
+  | _, dy when pos_hd.x = pos_tl.x -> { x = pos_tl.x; y = pos_tl.y + (dy / abs dy) }
+  (* Diagonals *)
+  | dx, dy -> { x = pos_tl.x + (dx / abs dx); y = pos_tl.y + (dy / abs dy) }
 ;;
 
 let makeMove rope (d, mag) tl_path =
