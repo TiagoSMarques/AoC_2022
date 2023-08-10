@@ -48,8 +48,7 @@ let doInstr buffer instruction =
 let _ =
   let solve =
     Readfile.read_lines "day10.txt"
-    |> List.fold ~init:{ c = 0; x = 1; b = 0; st = 0; crt = [""] } ~f:(fun acc inst ->
-      doInstr acc inst)
+    |> List.fold ~init:{ c = 0; x = 1; b = 0; st = 0; crt = [""] } ~f:doInstr
   in
   Stdio.printf "Part1: %d\n" solve.st;
   Readfile.print_listof_strs ~txt:"Part2:\n" (List.rev solve.crt)
