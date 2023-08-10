@@ -34,15 +34,13 @@ let doInstr buffer instruction =
     let st = strenth c x st_buf in
     let crt = drawPixel c x tv in
 
-    if noop_case then
-      { c; x; b = 0; st; crt }
-    else if i = 2 then
+    if i = 2 || noop_case then
       { c; x; b; st; crt }
     else
       cycle (i + 1) b st crt false
   in
   match String.split ~on:' ' instruction with
-  | ["noop"] -> cycle 1 buffer.x buffer.st buffer.crt true
+  | ["noop"] -> cycle 1 0 buffer.st buffer.crt true
   | ["addx"; v] -> cycle 1 (Int.of_string v) buffer.st buffer.crt false
   | _ -> failwith "Bad Input"
 ;;
