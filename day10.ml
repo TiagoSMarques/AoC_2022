@@ -2,7 +2,7 @@ open Base
 
 type buf = {
   c: int;
-  v: int;
+  x: int;
   b: int;
   st: int;
   crt: string list;
@@ -27,27 +27,23 @@ let drawPixel c x crt =
     (List.hd_exn n_crt ^ ".") :: List.tl_exn n_crt
 ;;
 
-let doInstr main_b instruction =
-  let rec cycle i v st_buf tv =
-    let c = main_b.c + i in
-    let x = main_b.v + main_b.b in
-    let s = strenth c x st_buf in
-    let n_tv = drawPixel c x tv in
+let doInstr buffer instruction =
+  let rec cycle i b st_buf tv noop_case =
+    let c = buffer.c + i in
+    let x = buffer.x + buffer.b in
+    let st = strenth c x st_buf in
+    let crt = drawPixel c x tv in
 
-    if i = 2 then
-      { c = main_b.c + 2; v = x; b = v; st = s; crt = n_tv }
+    if noop_case then
+      { c; x; b = 0; st; crt }
+    else if i = 2 then
+      { c; x; b; st; crt }
     else
-      cycle (i + 1) v s n_tv
+      cycle (i + 1) b st crt false
   in
   match String.split ~on:' ' instruction with
-  | ["noop"] ->
-    let c = main_b.c + 1 in
-    let x = main_b.v + main_b.b in
-    let s = strenth c x main_b.st in
-    let n_tv = drawPixel c x main_b.crt in
-
-    { c = main_b.c + 1; v = main_b.v + main_b.b; b = 0; st = s; crt = n_tv }
-  | ["addx"; v] -> cycle 1 (Int.of_string v) main_b.st main_b.crt
+  | ["noop"] -> cycle 1 buffer.x buffer.st buffer.crt true
+  | ["addx"; v] -> cycle 1 (Int.of_string v) buffer.st buffer.crt false
   | _ -> failwith "Bad Input"
 ;;
 
@@ -55,7 +51,7 @@ let inp = Readfile.read_lines "day10.txt"
 
 let _ =
   let solve =
-    List.fold inp ~init:{ c = 0; v = 1; b = 0; st = 0; crt = [""] } ~f:(fun acc inst ->
+    List.fold inp ~init:{ c = 0; x = 1; b = 0; st = 0; crt = [""] } ~f:(fun acc inst ->
       doInstr acc inst)
   in
   Stdio.printf "Part1: %d\n" solve.st;
