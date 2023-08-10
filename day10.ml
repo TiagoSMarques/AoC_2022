@@ -4,6 +4,7 @@ type buf = {
   c: int;
   v: int;
   b: int;
+  st: int;
 }
 
 let check x =
@@ -13,26 +14,37 @@ let check x =
     false
 ;;
 
+let strenth c x st =
+  if check c then
+    st + (c * x)
+  else
+    st
+;;
+
 let doInstr main_b instruction =
-  let rec cycle buffer =
-    if buffer.c = 2 then
-      { c = main_b.c + buffer.c; v = main_b.v + buffer.b; b = buffer.v }
+  let rec cycle i v st_buf =
+    let s = strenth (main_b.c + i) (main_b.v + main_b.b) st_buf in
+    (* Stdio.printf "--%d,%d %d\n" (main_b.c + i) (main_b.v + main_b.b) s; *)
+    if i = 2 then
+      { c = main_b.c + 2; v = main_b.v + main_b.b; b = v; st = s }
     else
-      cycle { c = buffer.c + 1; v = buffer.v; b = buffer.b }
+      cycle (i + 1) v s
   in
   match String.split ~on:' ' instruction with
-  | ["noop"] -> { c = main_b.c + 1; v = main_b.v + main_b.b; b = 0 }
-  | ["addx"; v] -> cycle { c = 0; v = Int.of_string v; b = main_b.b }
+  | ["noop"] ->
+    let s = strenth (main_b.c + 1) (main_b.v + main_b.b) main_b.st in
+    (* Stdio.printf "--%d,%d %d\n" (main_b.c + 1) (main_b.v + main_b.b) s; *)
+    { c = main_b.c + 1; v = main_b.v + main_b.b; b = 0; st = s }
+  | ["addx"; v] -> cycle 1 (Int.of_string v) main_b.st
   | _ -> failwith "Bad Input"
 ;;
 
-let b = doInstr { c = 5; v = 4; b = -5 } "noop"
 let inp = Readfile.read_lines "day10.txt"
-(* let i = ["noop"; "addx 3"; "addx -5"] *)
 
 let _ =
-  List.fold inp ~init:{ c = 0; v = 1; b = 0 } ~f:(fun acc inst ->
-    let a = doInstr acc inst in
-    Stdio.printf "%d-%d\n" a.c a.v;
-    doInstr acc inst)
+  let p1 =
+    List.fold inp ~init:{ c = 0; v = 1; b = 0; st = 0 } ~f:(fun acc inst ->
+      doInstr acc inst)
+  in
+  Stdio.printf "Part1: %d\n" p1.st
 ;;
