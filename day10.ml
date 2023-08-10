@@ -14,17 +14,11 @@ let strenth c x st =
   | _ -> st
 ;;
 
-let checkRow = function
-  | 40 | 80 | 120 | 160 | 200 -> true
-  | _ -> false
-;;
-
 let drawPixel c x crt =
   let line l =
-    if checkRow c then
-      "" :: l
-    else
-      l
+    match c with
+    | 40 | 80 | 120 | 160 | 200 -> "" :: l
+    | _ -> l
   in
   let n_crt = line crt in
   if (c - 1) % 40 >= x - 1 && (c - 1) % 40 <= (x + 1) % 40 then
