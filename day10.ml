@@ -47,11 +47,10 @@ let doInstr buffer instruction =
   | _ -> failwith "Bad Input"
 ;;
 
-let inp = Readfile.read_lines "day10.txt"
-
 let _ =
   let solve =
-    List.fold inp ~init:{ c = 0; x = 1; b = 0; st = 0; crt = [""] } ~f:(fun acc inst ->
+    Readfile.read_lines "day10.txt"
+    |> List.fold ~init:{ c = 0; x = 1; b = 0; st = 0; crt = [""] } ~f:(fun acc inst ->
       doInstr acc inst)
   in
   Stdio.printf "Part1: %d\n" solve.st;
