@@ -4,6 +4,10 @@ let read_lines file =
   In_channel.with_open_text file In_channel.input_all |> Str.(split (regexp "\n"))
 ;;
 
+let read_paragraph file =
+  In_channel.with_open_text file In_channel.input_all |> Str.(split (regexp "\n\n"))
+;;
+
 let print_listof_ints ?(txt = "") ints =
   Format.printf
     "%s %a \n"
@@ -14,14 +18,14 @@ let print_listof_ints ?(txt = "") ints =
     ints
 ;;
 
-let print_listof_strs ?(txt = "") ints =
+let print_listof_strs ?(txt = "") strs =
   Format.printf
     "%s %a \n"
     txt
     (Format.pp_print_list
        ~pp_sep:(fun fmt () -> Format.fprintf fmt "; ")
        Format.pp_print_string)
-    ints
+    strs
 ;;
 
 let print_listof_chars ?(txt = "") chars =
