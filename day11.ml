@@ -5,6 +5,7 @@ type monkey = {
   items: int list;
   op: string list;
   test: int * int * int;
+  n_insp: int;
 }
 
 let a =
@@ -34,13 +35,11 @@ let parse m_string =
         Int.of_string @@ List.nth_exn (String.split ~on:' ' l5) 9,
         Int.of_string @@ List.nth_exn (String.split ~on:' ' l6) 9 )
     in
-    { id; items; op; test }
+    { id; items; op; test; n_insp = 0 }
   | _ -> failwith "Bad input"
 ;;
 
-let c = parse a
-
-let init_board_Map =
+let init_bM =
   List.fold
     ~init:(Map.empty (module Int))
     ~f:(fun acc elem ->
@@ -50,60 +49,77 @@ let init_board_Map =
   @@ Readfile.read_paragraph "day11.txt"
 ;;
 
-let playRound board_Map =
-  let isOld it = function
-    | "old" -> it
-    | x -> Int.of_string x
-  in
-  let makePlay monkey curr_board =
-    let move_list =
-      List.map monkey.items ~f:(fun wl ->
-        let n_worry_l =
-          match monkey.op with
-          | [v1; "*"; v2] -> isOld wl v1 * isOld wl v2 / 3
-          | [v1; "+"; v2] -> (isOld wl v1 + isOld wl v2) / 3
-          | _ -> failwith "Bad parse operation"
-        in
-        let tt, t, f = monkey.test in
-        let dest_monkey =
-          if n_worry_l % tt = 0 then
-            t
-          else
-            f
-        in
-        n_worry_l, dest_monkey)
-    in
-    (*update current monkey*)
-    let up_monkey =
-      Map.set
-        curr_board
-        ~key:monkey.id
-        ~data:{ id = monkey.id; items = []; op = monkey.op; test = monkey.test }
-    in
-    up_monkey, move_list
-  in
-
-  Map.fold board_Map ~init:board_Map ~f:(fun ~key:_ ~data:v acc ->
-    (*update next monkey*)
-    let new_board, updates = makePlay v acc in
-
-    let d =
-      List.fold updates ~init:new_board ~f:(fun acc' (n_wl, d_v) ->
-        Map.update acc' d_v ~f:(fun v ->
-          match v with
-          | Some v -> { id = v.id; items = n_wl :: v.items; op = v.op; test = v.test }
-          | None -> failwith "No monkey id to update"))
-    in
-    let _ =
-      List.iteri ~f:(fun i a -> Readfile.print_listof_ints ~txt:(Int.to_string i) a)
-      @@ List.map ~f:(fun a -> a.items)
-      @@ Map.data d
-    in
-    d)
+let isOld it = function
+  | "old" -> it
+  | x -> Int.of_string x
 ;;
 
-let d = playRound init_board_Map
+let makePlay monkey =
+  (* Readfile.print_listof_ints monkey.items; *)
+  List.map monkey.items ~f:(fun wl ->
+    let n_worry_l =
+      match monkey.op with
+      | [v1; "*"; v2] -> isOld wl v1 * isOld wl v2 / 3
+      | [v1; "+"; v2] -> (isOld wl v1 + isOld wl v2) / 3
+      | _ -> failwith "Bad parse operation"
+    in
+    let tt, t, f = monkey.test in
+    let dest_monkey =
+      if n_worry_l % tt = 0 then
+        t
+      else
+        f
+    in
+    n_worry_l, dest_monkey)
+;;
 
+let playRound board_Map =
+  let rec updateMonkeys bM k'_list =
+    match k'_list with
+    | k :: tl ->
+      let updates = (0, k) :: makePlay (Map.find_exn bM k) in
+      let n_bM =
+        List.fold updates ~init:bM ~f:(fun acc' (n_wl, d_m) ->
+          Map.update acc' d_m ~f:(fun v ->
+            (* Stdio.printf "Value: %d Dest: %d \n" n_wl d_m; *)
+            match v with
+            | Some v ->
+              if d_m = k then
+                {
+                  id = k;
+                  items = [];
+                  op = v.op;
+                  test = v.test;
+                  n_insp = List.length updates - 1 + v.n_insp;
+                }
+              else
+                {
+                  id = v.id;
+                  items = n_wl :: v.items;
+                  op = v.op;
+                  test = v.test;
+                  n_insp = v.n_insp;
+                }
+            | None -> failwith "No monkey id to update"))
+      in
+      updateMonkeys n_bM tl
+    | [] -> bM
+  in
+  updateMonkeys board_Map @@ Map.keys board_Map
+;;
+
+(* let m = playRound init_bM *)
+let d = List.fold (List.range 0 20) ~init:init_bM ~f:(fun acc _ -> playRound acc)
+let v = List.sort ~compare:Int.descending @@ List.map ~f:(fun a -> a.n_insp) @@ Map.data d
+let p1 = List.nth_exn v 0 * List.nth_exn v 1
+let _ = Stdio.printf "%d" p1
+
+(* let _ = *)
+(*   List.iteri ~f:(fun i a -> Readfile.print_listof_ints ~txt:(Int.to_string i) a) *)
+(*   @@ List.map ~f:(fun a -> a.items) *)
+(*   @@ Map.data d *)
+(* ;; *)
+(**)
 (* Parse the input for each monkey - done *)
 (* Build monkey list using List.map on the input *)
 (* make the play function? *)

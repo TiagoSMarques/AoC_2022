@@ -18,6 +18,16 @@ let print_listof_ints ?(txt = "") ints =
     ints
 ;;
 
+let print_listof_int_tuple ?(txt = "") ints =
+  Format.printf
+    "%s %a \n"
+    txt
+    (Format.pp_print_list
+       ~pp_sep:(fun fmt () -> Format.fprintf fmt "; ")
+       (fun fmt (x, y) -> Format.fprintf fmt "(%d, %d)" x y))
+    ints
+;;
+
 let print_listof_strs ?(txt = "") strs =
   Format.printf
     "%s %a \n"
