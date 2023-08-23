@@ -2,11 +2,12 @@ open Base
 
 type monkey = {
   id: int;
-  items: int64 list;
+  items: int list;
   op: string list;
   test: int * int * int;
   n_insp: int;
 }
+
 
 let a =
   "Monkey 1:
@@ -21,8 +22,8 @@ let parse m_string =
   match String.split ~on:'\n' m_string with
   | [l1; l2; l3; l4; l5; l6] ->
     let id = Int.of_string @@ List.nth_exn (String.split_on_chars ~on:[' '; ':'] l1) 1 in
-    let items : int64 list =
-      List.map ~f:(fun x -> Int64.of_string x)
+    let items =
+      List.map ~f:(fun x -> Int.of_string x)
       @@ List.filteri ~f:(fun i _ -> i >= 4 && ((2 * i) + 4) % 4 = 0)
       @@ String.split_on_chars ~on:[' '; ','] l2
     in
@@ -49,29 +50,31 @@ let init_bM =
   @@ Readfile.read_paragraph "day11.txt"
 ;;
 
+let quot = 
+  Map.fold init_bM ~init:1 ~f:(fun ~key:_ ~data:m quot -> let divis, _ ,_ = m.test in quot* divis)
+;;
+
 let isOld it = function
   | "old" -> it
-  | x -> Int64.of_string x
+  | x -> Int.of_string x
 ;;
 
 let isP2 = function
-  | false -> Int64.of_int_exn 3
-  | true -> Int64.of_int_exn 1
+  | false ->  3
+  | true ->  1
 ;;
 
 let makePlay monkey p =
-  let open Int64 in
-  (* Readfile.print_listof_ints monkey.items; *)
   List.map monkey.items ~f:(fun wl ->
-    let n_worry_l : int64 =
+    let n_worry_l =
       match monkey.op with
-      | [v1; "*"; v2] -> isOld wl v1 * isOld wl v2 / isP2 p
-      | [v1; "+"; v2] -> (isOld wl v1 + isOld wl v2) / isP2 p
+      | [v1; "*"; v2] -> isOld wl v1 * isOld wl v2 % quot / isP2 p
+      | [v1; "+"; v2] -> (isOld wl v1 + isOld wl v2) % quot / isP2 p
       | _ -> failwith "Bad parse operation"
     in
     let tt, t, f = monkey.test in
     let dest_monkey =
-      if n_worry_l % of_int_exn tt = zero then
+      if n_worry_l %  tt = 0 then
         t
       else
         f
@@ -82,17 +85,18 @@ let makePlay monkey p =
 let playRound board_Map p =
   let rec updateMonkeys bM k'_list =
     match k'_list with
+    | [] -> bM
     | k :: tl ->
-      let updates = (Int64.zero, k) :: makePlay (Map.find_exn bM k) p in
+      let updates = (0, k) :: makePlay (Map.find_exn bM k) p in
       let n_bM =
         List.fold updates ~init:bM ~f:(fun acc' (n_wl, d_m) ->
           Map.update acc' d_m ~f:(fun v ->
-            (* Stdio.printf "Value: %Ld Dest: %d \n" n_wl d_m; *)
             match v with
+            | None -> failwith "No monkey id to update"
             | Some v ->
               if d_m = k then
                 {
-                  id = k;
+                  id = v.id;
                   items = [];
                   op = v.op;
                   test = v.test;
@@ -106,10 +110,10 @@ let playRound board_Map p =
                   test = v.test;
                   n_insp = v.n_insp;
                 }
-            | None -> failwith "No monkey id to update"))
+            ))
       in
       updateMonkeys n_bM tl
-    | [] -> bM
+
   in
   updateMonkeys board_Map @@ Map.keys board_Map
 ;;
@@ -121,24 +125,8 @@ let solve p r =
   @@ List.fold (List.range 0 r) ~init:init_bM ~f:(fun acc _ -> playRound acc p)
 ;;
 
-let p2' =
-  List.fold (List.range 0 10000) ~init:init_bM ~f:(fun acc _ -> playRound acc true)
-;;
-
-let _ =
-  List.iteri ~f:(fun i a -> Readfile.print_listof_ints ~txt:(Int.to_string i) a)
-  @@ List.map ~f:(fun a -> a.items)
-  @@ Map.data p2'
-;;
-
-(* let p2' = List.fold (List.range 0 20) ~init:init_bM ~f:(fun acc _ -> playRound acc true) *)
-
-let _ =
-  List.iteri ~f:(fun i a -> Stdio.printf "id: %d ins:%d \n" i a.n_insp) @@ Map.data p2'
-;;
-
 let p1 = solve false 20
 let p2 = solve true 10000
 let ans1 = List.nth_exn p1 0 * List.nth_exn p1 1
 let ans2 = List.nth_exn p2 0 * List.nth_exn p2 1
-let _ = Stdio.printf "Part1: %d \n Part2: %d \n" ans1 ans2
+let _ = Stdio.printf "Part1: %d \nPart2: %d \n" ans1 ans2

@@ -14,7 +14,7 @@ let print_listof_ints ?(txt = "") ints =
     txt
     (Format.pp_print_list
        ~pp_sep:(fun fmt () -> Format.fprintf fmt "; ")
-       (fun fmt x -> Format.fprintf fmt "%Ld" x))
+       (fun fmt x -> Format.fprintf fmt "%d" x))
     ints
 ;;
 
