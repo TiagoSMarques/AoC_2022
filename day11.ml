@@ -8,15 +8,6 @@ type monkey = {
   n_insp: int;
 }
 
-let a =
-  "Monkey 1:
-  Starting items: 79, 98
-  Operation: new = old * 19
-  Test: divisible by 23
-    If true: throw to monkey 2
-    If false: throw to monkey 3"
-;;
-
 let parse m_string =
   match String.split ~on:'\n' m_string with
   | [l1; l2; l3; l4; l5; l6] ->

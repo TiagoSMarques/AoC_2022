@@ -1,4 +1,4 @@
 (executable
- (name day11)
- (libraries base stdio unix core_bench readfile re)
- )
+ (name day12)
+ (libraries base stdio unix core_bench readfile re))
+ 
