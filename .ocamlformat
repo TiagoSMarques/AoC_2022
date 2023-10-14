@@ -27,7 +27,7 @@ space-around-variants = true
 type-decl = sparse
 wrap-fun-args = false
 
-if-then-else = k-r
+#if-then-else = k-r
 indicate-nested-or-patterns = space
 # align-cases = true
 

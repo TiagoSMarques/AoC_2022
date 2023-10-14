@@ -5,68 +5,96 @@ type 'a tree =
   | Node of 'a * 'a tree * 'a tree * 'a tree * 'a tree
   | Leaf
 
-type dirs = {
-  u: bool;
-  d: bool;
-  l: bool;
-  r: bool;
+type dir =
+  | U
+  | D
+  | L
+  | R
+
+type pos = {
+  y: int;
+  x: int;
 }
 
-let t = Node (1, Node (2, Leaf, Leaf, Leaf, Leaf), Leaf, Leaf, Leaf)
+let tuple_equal (a, b) (x, y) = a = x && b = y
+let input = Array.of_list @@ Readfile.read_lines "day12.txt"
+(* let input = Array.of_list @@ String.split_lines i *)
 
-let i = "Sabqponm
-abcryxxl
-accszExk
-acctuvwj
-abdefghi"
+let int_matrix, start, finish =
+  let s = ref { y = 0; x = 0 } in
+  let f = ref { y = 0; x = 0 } in
 
-(* let input = Array.of_list @@ Readfile.read_lines "day12.txt" *)
-let input = Array.of_list @@ String.split_lines i
-let chars_matrix = Array.map input ~f:(fun e -> String.to_array e)
-
-let int_matrix =
-  Array2.of_array Int c_layout
-  @@ Array.map ~f:(Array.map ~f:(fun c -> Char.to_int c - 97)) chars_matrix
+  let matrix =
+    Array2.of_array Int c_layout
+    @@ Array.mapi input ~f:(fun y e ->
+      Array.mapi
+        ~f:(fun x v ->
+          match v with
+          | 'S' ->
+            s := { y; x };
+            0
+          | 'E' ->
+            f := { y; x };
+            25
+          | _ -> Char.to_int v - 97)
+        (String.to_array e))
+  in
+  matrix, !s, !f
 ;;
 
 let h, w = Array2.(dim1 int_matrix, dim2 int_matrix)
 
-type pos = {
-  x: int;
-  y: int;
-}
+(* fix this - i replaced the values for the S and E above so this no longer works *)
 
-let s = ref { x = 0; y = 0 }
-let f = ref { x = 0; y = 0 };;
-
-for x = 0 to w - 1 do
-  for y = 0 to h - 1 do
-    let curr = int_matrix.{x, y} in
-    if curr = -14 then s := { x; y };
-    if curr = -28 then f := { x; y }
-  done
-done
-
-let checkHeight (x, y) curr =
-  let is_valid_pos = function
-    | 'u' -> y > 0 && curr - int_matrix.{x, y - 1} = 1
-    | 'd' -> y < h - 1 && curr - int_matrix.{x, y + 1} = 1
-    | 'l' -> x > 0 && curr - int_matrix.{x - 1, y} = 1
-    | 'r' -> x < w - 1 && curr - int_matrix.{x + 1, y} = 1
-    | _ -> false
+(* let curr = int_matrix.{y, x} in *)
+let buildTree m start finish =
+  let is_valid_pos (x, y) curr = function
+    | U -> y > 0 && abs (int_matrix.{y - 1, x} - curr) <= 1
+    | D -> y < h - 1 && abs (int_matrix.{y + 1, x} - curr) <= 1
+    | L -> x > 0 && abs (int_matrix.{y, x - 1} - curr) <= 1
+    | R -> x < w - 1 && abs (int_matrix.{y, x + 1} - curr) <= 1
   in
-  {
-    u = is_valid_pos 'u';
-    d = is_valid_pos 'd';
-    l = is_valid_pos 'l';
-    r = is_valid_pos 'r';
-  }
+
+  let rec addNode (x, y) visited_pos =
+    let curr = m.{y, x} in
+    let is_last = x = finish.x && y = finish.y in
+    let is_visited = List.mem visited_pos (x, y) ~equal:tuple_equal in
+    let checkDir d = (not is_last) && (not is_visited) && is_valid_pos (x, y) curr d in
+    let v = if is_last then 100 else curr in
+    Node
+      ( v,
+        (if checkDir U then addNode (x, y - 1) ((x, y) :: visited_pos) else Leaf),
+        (if checkDir D then addNode (x, y + 1) ((x, y) :: visited_pos) else Leaf),
+        (if checkDir L then addNode (x - 1, y) ((x, y) :: visited_pos) else Leaf),
+        if checkDir R then addNode (x + 1, y) ((x, y) :: visited_pos) else Leaf )
+  in
+
+  addNode (start.x, start.y) []
 ;;
 
-let buildTree (x, y) =
-  let curr = int_matrix.{x, y} in
-  Node (curr, Leaf, Leaf, Leaf, Leaf)
+let t = buildTree int_matrix start finish
+
+let rec nodeDepth tree depth =
+  match tree with
+  | Node (v, _, _, _, _) when v = 100 -> Some depth
+  | Node (_, t1, t2, t3, t4) ->
+    let depths =
+      List.fold
+        ~f:(fun acc subTree ->
+          match nodeDepth subTree (depth + 1) with
+          | Some d -> d :: acc
+          | None -> acc)
+        ~init:[]
+        [t1; t2; t3; t4]
+    in
+    if List.length depths > 0 then List.hd (List.sort ~compare depths) else None
+  | Leaf -> None
 ;;
 
-(* E position {2,5} *)
-(* let _ = chars_matrix.{2, 5} *)
+let dd =
+  match nodeDepth t 0 with
+  | Some x -> x
+  | None -> 0
+;;
+
+let _ = Stdio.printf "Part 1: %d\n" dd
